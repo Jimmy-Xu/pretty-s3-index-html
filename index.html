@@ -23,7 +23,7 @@
   -->
   <!--
 
-  Modified by Nolan Lawson!  (http://nolanlawson.com).  I'm keeping the spirit of the
+  Modified by Nolan Lawson!  (http://nolanlawson.com).  I'm keeping the spirit of the 
   GPL alive by issuing this with the same license!
 
   -->
@@ -84,16 +84,16 @@
 	  "use strict";
 	  var FOLDER_PATTERN = new RegExp('_\\$folder\\$$');
 	  var TYPE_PATTERN = new RegExp('\\.([^\\.\\s]{1,10})$');
-		var KB = 1024;
-		var MB = 1000000;
-		var GB = 1000000000;
 
-    // replace last /index.html to get bucket root
-	  var bucketUrl = document.location.href.replace(/\/[^\/]+$/, '');
-		var compiledTemplate;
+	  var bucketUrl = location.protocol + '//' + location.hostname;
 
     // return e.g. 1.2KB, 1.3MB, 2GB, etc.
 	  function toFriendlySizeName(size){
+
+	    var KB = 1024;
+	    var MB = 1000000;
+	    var GB = 1000000000;
+
 	    if (size === 0) {
 	      return '';
 	    } else if (size < KB) {
@@ -116,9 +116,10 @@
 	    self.size = size;
 	    self.key = key;
 
+
 	    // init logic
-	    self.isFolder = FOLDER_PATTERN.test(self.key);
-	    self.filename = self.isFolder ? self.key.replace(FOLDER_PATTERN,'') : self.key;
+	    self.isFolder = self.key.substr(-1) == "/";
+	    self.filename = self.isFolder ? self.key.substr(0,self.key.length-1) : self.key;
 	    self.url = bucketUrl + '/' + self.key;
 	    self.levels = self.filename.split('/');
 	    self.numLevels = self.levels.length;
@@ -129,61 +130,56 @@
 	    self.friendlyLastModified = moment(lastModified).format('MMM Do YYYY, hh:mm:ss a');
 	  }
 
-		function onAjaxSuccess(xml) {
-			var listBucketResult = $(xml).find('ListBucketResult');
 
-			// set a reasonable title instead of "Bucket loading"
-			var title = 'Index of bucket "' + listBucketResult.find('Name').text() + '"';
-			document.title = title;
-			$('#h1-title').text(title);
-
-			var $tbodyContent = $('#tbody-content');
-
-			// create the file or folder objects
-
-			var filesOrFolders = [];
-
-			listBucketResult.find('Contents').each(function(idx, element){
-
-				var $element = $(element);
-
-				var fileOrFolder = new FileOrFolder(
-					 $element.find('LastModified').text(),
-					 $element.find('ETag').text(),
-					 $element.find('Size').text(),
-					 $element.find('Key').text()
-				);
-
-				filesOrFolders.push(fileOrFolder);
-			});
-
-			// sort
-			filesOrFolders.sort(function(left, right){
-				if (left.levels === right.levels) {
-					return 0;
-				} else if (left.levels < right.levels) {
-					return -1;
-				}
-				return 1;
-			});
-
-			// fill in the rows
-			var str = '';
-			for (var i = 0; i < filesOrFolders.length; i ++) {
-				str += compiledTemplate(filesOrFolders[i]);
-			}
-			$tbodyContent.append(str);
-			$('.hide-while-loading').show();
-		}
-
-		$.ajax({
+	  $.ajax
+     ({
          url: bucketUrl,
-         success: onAjaxSuccess
-		});
+         success: function(xml) {
+           var listBucketResult = $(xml).find('ListBucketResult');
 
-    // compile while ajax is in progress
-		compiledTemplate = Handlebars.compile($('#file-or-folder').html());
+           // set a reasonable title instead of "Bucket loading"
+           var title = 'Index of bucket "' + listBucketResult.find('Name').text() + '"';
+           document.title = title;
+           $('#h1-title').text(title);
 
+           var $tbodyContent = $('#tbody-content');
+
+           // create the file or folder objects
+
+           var filesOrFolders = [];
+
+           listBucketResult.find('Contents').each(function(idx, element){
+
+             var $element = $(element);
+
+             var fileOrFolder = new FileOrFolder(
+                $element.find('LastModified').text(),
+                $element.find('ETag').text(),
+                $element.find('Size').text(),
+                $element.find('Key').text()
+             );
+
+             filesOrFolders.push(fileOrFolder);
+           });
+
+           // sort
+           filesOrFolders.sort(function(left, right){
+             if (left.levels === right.levels) {
+               return 0;
+             } else if (left.levels < right.levels) {
+               return -1;
+             }
+             return 1;
+           })
+
+           // fill in the rows
+           var template = Handlebars.compile($('#file-or-folder').html());
+           $.each(filesOrFolders, function(idx, element){
+              $tbodyContent.append(template(element));
+           });
+           $('.hide-while-loading').show();
+         }
+     });
 	})(jQuery);
 	</script>
 	</body>
