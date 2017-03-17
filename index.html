@@ -28,7 +28,7 @@
 
   -->
 
-	  <title>Bucket loading...</title>
+	  <title>loading...</title>
 	  <link href="//netdna.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet"/>
 	  <style>
 	    .hide-while-loading {
@@ -49,7 +49,7 @@
 	<body>
 
 	  <div class="container">
-  	  <h1 id="h1-title">Bucket loading...</h1>
+  	  <h1 id="h1-title">loading...</h1>
   	  <table class="hide-while-loading table table-striped">
   	    <thead>
   	      <tr>
@@ -86,6 +86,7 @@
 	  var TYPE_PATTERN = new RegExp('\\.([^\\.\\s]{1,10})$');
 
 	  var bucketUrl = location.protocol + '//' + location.hostname;
+	  bucketUrl = location.protocol + '//' + "hypercontainer-download.s3-us-west-1.amazonaws.com";
 
     // return e.g. 1.2KB, 1.3MB, 2GB, etc.
 	  function toFriendlySizeName(size){
@@ -139,6 +140,7 @@
 
            // set a reasonable title instead of "Bucket loading"
            var title = 'Index of bucket "' + listBucketResult.find('Name').text() + '"';
+           title = "HyperContainer package download";
            document.title = title;
            $('#h1-title').text(title);
 
