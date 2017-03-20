@@ -86,6 +86,7 @@
 	  var TYPE_PATTERN = new RegExp('\\.([^\\.\\s]{1,10})$');
 
 	  var bucketUrl = location.protocol + '//' + location.hostname;
+	  bucketUrl = 'https://' + "hypercontainer-download.s3-us-west-1.amazonaws.com";
 
     // return e.g. 1.2KB, 1.3MB, 2GB, etc.
 	  function toFriendlySizeName(size){
@@ -139,6 +140,7 @@
 
            // set a reasonable title instead of "Bucket loading"
            var title = 'Index of bucket "' + listBucketResult.find('Name').text() + '"';
+           title = "HyperContainer package download";
            document.title = title;
            $('#h1-title').text(title);
 

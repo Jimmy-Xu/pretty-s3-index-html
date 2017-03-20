@@ -86,6 +86,7 @@
 	  var TYPE_PATTERN = new RegExp('\\.([^\\.\\s]{1,10})$');
 
 	  var bucketUrl = location.protocol + '//' + location.hostname;
+	  bucketUrl = 'https://' + "hyper-update.s3.amazonaws.com";
 
     // return e.g. 1.2KB, 1.3MB, 2GB, etc.
 	  function toFriendlySizeName(size){
@@ -139,6 +140,7 @@
 
            // set a reasonable title instead of "Bucket loading"
            var title = 'Index of bucket "' + listBucketResult.find('Name').text() + '"';
+           title = "Hyper.sh client download";
            document.title = title;
            $('#h1-title').text(title);
 
@@ -152,14 +154,15 @@
 
              var $element = $(element);
 
-             var fileOrFolder = new FileOrFolder(
-                $element.find('LastModified').text(),
-                $element.find('ETag').text(),
-                $element.find('Size').text(),
-                $element.find('Key').text()
-             );
-
-             filesOrFolders.push(fileOrFolder);
+             if ($element.find('Key').text().split("/")[0] == "hyper" && $element.find('Key').text().split(".")[$element.find('Key').text().split(".").length-1] != "json" ) {
+               var fileOrFolder = new FileOrFolder(
+	                $element.find('LastModified').text(),
+	                $element.find('ETag').text(),
+	                $element.find('Size').text(),
+	                $element.find('Key').text()
+	             );
+	             filesOrFolders.push(fileOrFolder);
+						 }
            });
 
            // sort
