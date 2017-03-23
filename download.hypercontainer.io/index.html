@@ -150,10 +150,20 @@
 
            var filesOrFolders = [];
 
-           listBucketResult.find('Contents').each(function(idx, element){
+           listBucketResult.find('Contents').sort(function(a,b){
+              a = $(a).find("Key").text();
+              b = $(b).find("Key").text();
+              if (a.split("/")[0] != b.split("/")[0]) {
+                return (-a.localeCompare(b));
+              }
+              else {
+                return (a.localeCompare(b));
+              }
+           }).each(function(idx, element){
 
              var $element = $(element);
 
+             console.log("Key:"+$element.find('Key').text());
              var fileOrFolder = new FileOrFolder(
                 $element.find('LastModified').text(),
                 $element.find('ETag').text(),
@@ -163,16 +173,6 @@
 
              filesOrFolders.push(fileOrFolder);
            });
-
-           // sort
-           filesOrFolders.sort(function(left, right){
-             if (left.levels === right.levels) {
-               return 0;
-             } else if (left.levels < right.levels) {
-               return -1;
-             }
-             return 1;
-           })
 
            // fill in the rows
            var template = Handlebars.compile($('#file-or-folder').html());
